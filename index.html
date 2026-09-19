@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fffaf2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Routee｜次は、どこへ行こう？</title>
+<style>
+:root{--teal:#138b82;--deep:#12343b;--coral:#ff7659;--cream:#fffaf2;--line:#e9e5dd;--muted:#6d7779}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--cream);color:#17343a}
+button,input,select,textarea{font:inherit}.app{max-width:620px;margin:auto;min-height:100vh;padding-bottom:88px}
+header{padding:20px 20px 8px}.brand{font-size:34px;font-weight:850;font-style:italic;letter-spacing:-1.5px}.sub{font-weight:700;margin-top:2px}
+.hero{margin:8px 16px 18px;border-radius:28px;overflow:hidden;min-height:245px;padding:28px;color:white;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(160deg,#1c9eaa 0%,#6cc7c2 38%,#f5c26b 100%);box-shadow:0 14px 40px #294b4930}
+.hero .plane{font-size:52px;align-self:flex-end}.hero h1{font-size:30px;margin:0 0 8px}.hero p{margin:0;opacity:.95}
+.card{background:#fff;margin:12px 16px;padding:18px;border:1px solid var(--line);border-radius:22px;box-shadow:0 7px 22px #203b3510}
+.primary{border:0;background:var(--teal);color:#fff;padding:15px 18px;border-radius:16px;font-weight:800;width:100%}.coral{background:var(--coral)}
+.row{display:flex;gap:10px}.row>*{flex:1}.field{margin:13px 0}.field label{display:block;font-size:13px;font-weight:800;margin:0 0 6px}.field input,.field select,.field textarea{width:100%;padding:13px;border:1px solid #dfe3df;border-radius:13px;background:#fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #d9dfdb;background:#fff;border-radius:999px;padding:9px 12px}.chip.on{background:#e5f5f1;border-color:var(--teal);color:var(--teal);font-weight:800}
+.trip{display:flex;gap:12px;align-items:center}.thumb{width:86px;height:68px;border-radius:15px;background:linear-gradient(145deg,#56b8d4,#a6d8c4 55%,#f2ba69)}
+.muted{color:var(--muted);font-size:13px}.timeline{position:relative}.stop{display:grid;grid-template-columns:58px 18px 1fr;gap:8px;padding:10px 0}.dot{width:12px;height:12px;border-radius:50%;background:var(--coral);margin-top:5px;box-shadow:0 0 0 4px #fff}.stop:not(:last-child) .dot:after{content:"";display:block;width:2px;height:55px;background:#d7ddd8;margin:12px 0 0 5px}
+.stop b{display:block}.stop small{color:var(--muted)}
+.map{height:390px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(135deg,#d9f1d8,#d9eef7 50%,#bcdcec)}
+.route{position:absolute;left:48%;top:35px;width:5px;height:290px;background:#3987dd;border-radius:9px;transform:rotate(12deg)}.pin{position:absolute;background:#fff;padding:8px 10px;border-radius:14px;box-shadow:0 4px 15px #0002;font-size:13px;font-weight:800}.p1{left:28%;top:35px}.p2{right:10%;top:125px}.p3{left:16%;top:220px}.p4{right:15%;bottom:35px}
+.screen{display:none}.screen.active{display:block}.topline{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 4px}.topline h2{margin:0}.back{border:0;background:none;font-size:24px}
+nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(620px,100%);display:flex;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+nav button{flex:1;border:0;background:none;color:#718080;font-size:11px;padding:5px}nav button b{display:block;font-size:21px;margin-bottom:2px}nav button.active{color:var(--teal);font-weight:800}
+.ai{background:#eef9f6;border-radius:18px;padding:14px;margin:10px 0}.sharebox{padding:13px;background:#f4f6f5;border-radius:13px;word-break:break-all}
+.fab{position:fixed;right:max(20px,calc((100vw - 620px)/2 + 20px));bottom:92px;width:58px;height:58px;border:0;border-radius:50%;background:var(--teal);color:white;font-size:30px;box-shadow:0 8px 24px #126d6555}
+</style></head>
+<body><div class="app">
+<section id="home" class="screen active">
+<header><div class="brand">✈️ Routee</div><div class="sub">次は、どこへ行こう？</div></header>
+<div class="hero"><div class="plane">➤</div><h1>旅の計画を、もっと楽しく。</h1><p>条件を入れるだけ。Routeeが旅程を組み立てます。</p></div>
+<div class="card"><button class="primary" onclick="show('create')">＋ 新しい旅をつくる</button></div>
+<div class="card"><h3>最近の旅行プラン</h3><div id="recent" class="muted">まだ旅行プランがありません。</div></div>
+</section>
+
+<section id="create" class="screen">
+<div class="topline"><button class="back" onclick="show('home')">‹</button><h2>新しい旅をつくる</h2><span></span></div>
+<div class="card">
+<div class="field"><label>行き先・エリア</label><input id="dest" placeholder="例：富山、北陸、未定でもOK"></div>
+<div class="row"><div class="field"><label>出発日</label><input id="start" type="date"></div><div class="field"><label>帰宅日</label><input id="end" type="date"></div></div>
+<div class="field"><label>出発地</label><input id="origin" value="名古屋市"></div>
+<div class="row"><div class="field"><label>大人</label><input id="adults" type="number" value="2" min="1"></div><div class="field"><label>子ども</label><input id="kids" type="number" value="1" min="0"></div></div>
+<div class="field"><label>移動手段</label><div class="chips" id="transport"><button class="chip on">🚙 車</button><button class="chip">🚃 公共交通</button><button class="chip">✈️ 飛行機</button></div></div>
+<div class="field"><label>旅行のスタイル</label><div class="chips" id="styles"><button class="chip on">🌄 絶景</button><button class="chip on">🍣 グルメ</button><button class="chip">♨️ 温泉</button><button class="chip">☕ カフェ</button><button class="chip">👶 子連れ</button><button class="chip">🌿 のんびり</button></div></div>
+<div class="field"><label>希望・条件</label><textarea id="notes" rows="4" placeholder="例：1歳児がいるので無理のない行程。海鮮を食べたい。15時までに帰宅したい。"></textarea></div>
+<button class="primary coral" onclick="makeTrip()">✨ プランをつくる</button>
+</div></section>
+
+<section id="plan" class="screen">
+<div class="topline"><button class="back" onclick="show('home')">‹</button><h2 id="tripTitle">旅のプラン</h2><button class="back" onclick="show('share')">⇧</button></div>
+<div class="card"><div class="muted" id="tripMeta"></div><div class="chips" style="margin-top:12px"><button class="chip on">1日目</button><button class="chip">2日目</button><button class="chip">3日目</button></div></div>
+<div class="card timeline" id="timeline"></div>
+<div class="card"><h3>Routee AI</h3><div class="ai">「もう少しゆっくり」「雨の日向けに」「海鮮を増やして」など、希望に合わせて編集できます。</div><div class="row"><input id="aiText" placeholder="変更したいことを入力" style="padding:13px;border:1px solid #ddd;border-radius:13px"><button onclick="aiEdit()" class="primary" style="max-width:90px">変更</button></div></div>
+<button class="fab" onclick="addStop()">＋</button>
+</section>
+
+<section id="map" class="screen">
+<div class="topline"><span></span><h2>地図で見る</h2><span></span></div>
+<div class="card map"><div class="route"></div><div class="pin p1">📍 出発地</div><div class="pin p2">🍣 ランチ</div><div class="pin p3">🌊 絶景スポット</div><div class="pin p4">🏨 宿泊先</div></div>
+<div class="card"><button class="primary" onclick="openMaps()">Google マップで周辺を見る</button><p class="muted">※ Routee内の地図はVer.1のイメージ表示です。ナビはGoogle マップを開きます。</p></div>
+</section>
+
+<section id="spots" class="screen">
+<div class="topline"><span></span><h2>スポットを探す</h2><span></span></div>
+<div class="card"><input id="spotSearch" placeholder="行きたい場所・キーワードで検索" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:14px"><div class="chips" style="margin-top:12px"><button class="chip on">すべて</button><button class="chip">絶景</button><button class="chip">グルメ</button><button class="chip">カフェ</button><button class="chip">温泉</button></div></div>
+<div id="spotCards">
+<div class="card trip"><div class="thumb"></div><div><b>絶景スポット候補</b><div class="muted">写真・口コミ・所要時間を将来ここに表示</div><button class="chip" onclick="addStop()">♡ 行きたい</button></div></div>
+<div class="card trip"><div class="thumb" style="background:linear-gradient(145deg,#ff9b70,#ffd08a)"></div><div><b>ご当地グルメ候補</b><div class="muted">旅程にワンタップで追加</div><button class="chip" onclick="addStop()">＋ 旅程に追加</button></div></div>
+</div></section>
+
+<section id="share" class="screen">
+<div class="topline"><button class="back" onclick="show('plan')">‹</button><h2>この旅を共有</h2><span></span></div>
+<div class="card"><h3>招待リンク</h3><p class="muted">Ver.1では端末の共有機能を使います。本格的な共同編集はクラウド版で追加できます。</p><div class="sharebox" id="shareUrl"></div><br><button class="primary" onclick="shareTrip()">⇧ リンクを共有</button></div>
+<div class="card"><h3>参加メンバー</h3><p>👑 あなた <span class="muted">（オーナー）</span></p><p>＋ メンバーを招待</p></div>
+</section>
+
+<nav>
+<button data-s="home" class="active" onclick="show('home')"><b>⌂</b>ホーム</button>
+<button data-s="plan" onclick="show('plan')"><b>▣</b>旅のプラン</button>
+<button data-s="spots" onclick="show('spots')"><b>⌕</b>スポット</button>
+<button data-s="map" onclick="show('map')"><b>⌖</b>マップ</button>
+</nav>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let trip=JSON.parse(localStorage.getItem('routee_trip')||'null');
+document.querySelectorAll('.chips').forEach(g=>g.addEventListener('click',e=>{if(e.target.classList.contains('chip'))e.target.classList.toggle('on')}));
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.s===id)); if(id==='plan')renderTrip()}
+function selected(id){return [...$(id).querySelectorAll('.chip.on')].map(x=>x.textContent.trim())}
+function makeTrip(){
+ let d=$('dest').value.trim()||'気ままな旅', o=$('origin').value.trim()||'出発地', s=$('start').value, e=$('end').value;
+ trip={dest:d,origin:o,start:s,end:e,adults:+$('adults').value,kids:+$('kids').value,transport:selected('transport')[0]||'🚙 車',styles:selected('styles'),notes:$('notes').value,
+ stops:[
+ ['08:00','🚙',o+' 出発','旅のスタート'],
+ ['10:30','☕','休憩スポット','無理のないペースでひと休み'],
+ ['12:00','🍣',d+'でランチ','ご当地グルメを楽しむ'],
+ ['13:30','🌊','おすすめ絶景スポット','写真を撮ってゆっくり散策'],
+ ['15:30','☕','カフェでひと休み','休憩・子連れなら昼寝時間にも'],
+ ['17:00','🏨','宿泊先チェックイン','温泉や夕食を楽しむ']
+ ]};
+ localStorage.setItem('routee_trip',JSON.stringify(trip)); renderTrip(); show('plan'); renderRecent()
+}
+function renderTrip(){
+ if(!trip){$('tripTitle').textContent='旅のプラン';$('tripMeta').textContent='「新しい旅をつくる」からプランを作成してください。';$('timeline').innerHTML='';return}
+ $('tripTitle').textContent=trip.dest+'の旅'; $('tripMeta').textContent=`${trip.start||'日程未定'} 〜 ${trip.end||''} ｜ 大人${trip.adults}・子ども${trip.kids} ｜ ${trip.transport}`;
+ $('timeline').innerHTML=trip.stops.map((x,i)=>`<div class="stop"><b>${x[0]}</b><div class="dot"></div><div><b>${x[1]} ${x[2]}</b><small>${x[3]}</small><br><button class="chip" onclick="editStop(${i})">編集</button> <button class="chip" onclick="delStop(${i})">削除</button></div></div>`).join('');
+ $('shareUrl').textContent=location.href.split('#')[0]+'?trip='+encodeURIComponent(trip.dest)
+}
+function editStop(i){let n=prompt('予定名を編集',trip.stops[i][2]);if(n){trip.stops[i][2]=n;saveTrip()}}
+function delStop(i){trip.stops.splice(i,1);saveTrip()}
+function addStop(){if(!trip)return alert('先に旅行プランを作成してください。');let n=prompt('追加する予定・スポット名');if(n){trip.stops.push(['--:--','📍',n,'追加した予定']);saveTrip();show('plan')}}
+function saveTrip(){localStorage.setItem('routee_trip',JSON.stringify(trip));renderTrip();renderRecent()}
+function aiEdit(){if(!trip)return;let t=$('aiText').value.trim();if(!t)return;trip.notes=(trip.notes?trip.notes+'\n':'')+'変更希望：'+t; if(t.includes('ゆっくり')) trip.stops=trip.stops.filter((_,i)=>i!==1); if(t.includes('海鮮')) trip.stops[2]=['12:00','🍣','海鮮ランチ','旬の魚を楽しむ']; saveTrip();$('aiText').value='';alert('希望をプランに反映しました（Ver.1簡易AI）')}
+function renderRecent(){if(!trip){$('recent').textContent='まだ旅行プランがありません。';return}$('recent').innerHTML=`<div class="trip"><div class="thumb"></div><div><b>${trip.dest}の旅</b><div class="muted">${trip.start||'日程未定'} 〜 ${trip.end||''}</div><button class="chip" onclick="show('plan')">開く</button></div></div>`}
+function openMaps(){let q=encodeURIComponent((trip?.dest||'日本')+' 観光');location.href='https://www.google.com/maps/search/?api=1&query='+q}
+async function shareTrip(){let text=`Routee｜${trip?.dest||'旅行'}のプラン`;let url=location.href;if(navigator.share){try{await navigator.share({title:'Routee',text,url})}catch(e){}}else{await navigator.clipboard.writeText(url);alert('リンクをコピーしました')}}
+renderRecent();renderTrip();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
+</script></body></html>
